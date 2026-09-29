@@ -1,0 +1,465 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/* Crorpus design tokens. Dark "Vault" is the default, light "Ledger"  */
+/* is the alternate. Components read semantic tokens only.             */
+/* ------------------------------------------------------------------ */
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1311;
+  --bg-raised: #151b18;
+  --bg-sunken: #0a0e0c;
+  --line: rgba(237, 230, 216, 0.1);
+  --line-strong: rgba(237, 230, 216, 0.2);
+  --text: #ede6d8;
+  --text-2: rgba(237, 230, 216, 0.72);
+  --text-3: rgba(237, 230, 216, 0.56);
+  --brass: #c9a45c;
+  --brass-strong: #dcb96f;
+  --brass-ink: #1a1408;
+  --gain: #7fb08a;
+  --loss: #d98466;
+  --slate: #8fa3b0;
+  --stone: #a39b87;
+  --olive: #8c9a5b;
+  --clay: #b58f7a;
+
+  --glass-fill: rgba(237, 230, 216, 0.06);
+  --glass-fill-hover: rgba(237, 230, 216, 0.11);
+  --glass-border: rgba(237, 230, 216, 0.16);
+  --glass-border-top: rgba(237, 230, 216, 0.3);
+  --glass-brass-fill: rgba(201, 164, 92, 0.2);
+  --glass-brass-fill-hover: rgba(201, 164, 92, 0.32);
+  --glass-brass-border: rgba(220, 185, 111, 0.55);
+  --scrim: rgba(6, 9, 8, 0.62);
+  --rule-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='40'><rect y='39' width='8' height='1' fill='%23ede6d8' fill-opacity='0.05'/></svg>");
+  --grain-opacity: 0.045;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f3efe6;
+  --bg-raised: #ebe6d9;
+  --bg-sunken: #e5dfd0;
+  --line: rgba(22, 32, 27, 0.13);
+  --line-strong: rgba(22, 32, 27, 0.26);
+  --text: #16201b;
+  --text-2: rgba(22, 32, 27, 0.78);
+  --text-3: rgba(22, 32, 27, 0.62);
+  --brass: #7a5b17;
+  --brass-strong: #62480f;
+  --brass-ink: #fbf5e6;
+  --gain: #2a6a3f;
+  --loss: #a4432a;
+  --slate: #46606f;
+  --stone: #6d6551;
+  --olive: #59672a;
+  --clay: #7d5a45;
+
+  --glass-fill: rgba(255, 252, 244, 0.55);
+  --glass-fill-hover: rgba(255, 252, 244, 0.8);
+  --glass-border: rgba(22, 32, 27, 0.16);
+  --glass-border-top: rgba(255, 255, 255, 0.9);
+  --glass-brass-fill: rgba(122, 91, 23, 0.16);
+  --glass-brass-fill-hover: rgba(122, 91, 23, 0.26);
+  --glass-brass-border: rgba(122, 91, 23, 0.55);
+  --scrim: rgba(22, 32, 27, 0.4);
+  --rule-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='40'><rect y='39' width='8' height='1' fill='%2316201b' fill-opacity='0.07'/></svg>");
+  --grain-opacity: 0.06;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-raised: var(--bg-raised);
+  --color-sunken: var(--bg-sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--text);
+  --color-ink-2: var(--text-2);
+  --color-ink-3: var(--text-3);
+  --color-brass: var(--brass);
+  --color-brass-strong: var(--brass-strong);
+  --color-gain: var(--gain);
+  --color-loss: var(--loss);
+  --color-slate: var(--slate);
+  --color-stone: var(--stone);
+  --color-olive: var(--olive);
+  --color-clay: var(--clay);
+  --font-display: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-plex), "Segoe UI", system-ui, sans-serif;
+  --radius-control: 4px;
+  --radius-panel: 6px;
+  --breakpoint-3xl: 120rem;
+}
+
+@layer base {
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+html {
+  background: var(--bg);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums lining-nums;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ledger rules and paper grain: the texture the glass blurs. Fixed so it reads as one surface. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--rule-image);
+  background-size: 8px 40px;
+  pointer-events: none;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  pointer-events: none;
+}
+
+::selection {
+  background: var(--brass);
+  color: var(--brass-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass-strong);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+}
+
+.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.eyebrow {
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -64px;
+  z-index: 200;
+  padding: 10px 16px;
+  background: var(--brass);
+  color: var(--brass-ink);
+  border-radius: var(--radius-control);
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 16px;
+}
+
+}
+
+@layer components {
+/* ------------------------------------------------------------------ */
+/* Glass surfaces                                                      */
+/* ------------------------------------------------------------------ */
+
+.glass {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-top);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+
+.panel {
+  background: var(--glass-fill);
+  border: 1px solid var(--line);
+  border-top-color: var(--glass-border);
+  border-radius: var(--radius-panel);
+}
+
+.rule-t {
+  border-top: 1px solid var(--line);
+}
+.rule-b {
+  border-bottom: 1px solid var(--line);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons: every button is glass                                      */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  --btn-fill: var(--glass-fill);
+  --btn-fill-hover: var(--glass-fill-hover);
+  --btn-border: var(--glass-border);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  font: 500 15px/1 var(--font-sans);
+  letter-spacing: 0.01em;
+  color: var(--text);
+  background: var(--btn-fill);
+  border: 1px solid var(--btn-border);
+  border-top-color: var(--glass-border-top);
+  border-radius: var(--radius-control);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  touch-action: manipulation;
+  transition:
+    background-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 200ms;
+}
+.btn:hover:not(:disabled) {
+  background: var(--btn-fill-hover);
+  transform: translateY(-1px);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 90ms;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-primary {
+  --btn-fill: var(--glass-brass-fill);
+  --btn-fill-hover: var(--glass-brass-fill-hover);
+  --btn-border: var(--glass-brass-border);
+  color: var(--brass-strong);
+  font-weight: 600;
+}
+:root[data-theme="light"] .btn-primary {
+  color: var(--brass-strong);
+}
+.btn-ghost {
+  --btn-fill: transparent;
+  --btn-border: transparent;
+  border-top-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--text-2);
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--text);
+}
+.btn-danger {
+  color: var(--loss);
+  --btn-border: color-mix(in srgb, var(--loss) 45%, transparent);
+}
+.btn-sm {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+.btn-lg {
+  min-height: 54px;
+  padding: 0 30px;
+  font-size: 16px;
+}
+.btn-icon {
+  min-width: 44px;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Form controls                                                       */
+/* ------------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field > label,
+.field > .label {
+  font-size: 13px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+.field .hint {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.field .error {
+  font-size: 13px;
+  color: var(--loss);
+}
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  font: 400 16px/1.2 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  transition: border-color 160ms, background-color 160ms;
+}
+.input:hover {
+  border-color: var(--line-strong);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--brass);
+  background: var(--glass-fill-hover);
+}
+.input[aria-invalid="true"] {
+  border-color: var(--loss);
+}
+.input::placeholder {
+  color: var(--text-3);
+}
+select.input {
+  appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23a39b87' stroke-width='1.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+select.input option {
+  background: var(--bg-raised);
+  color: var(--text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Tables                                                              */
+/* ------------------------------------------------------------------ */
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.data-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.data-table .r {
+  text-align: right;
+}
+.data-table tbody tr {
+  transition: background-color 160ms;
+}
+.data-table tbody tr:hover {
+  background: var(--glass-fill);
+}
+.data-table tfoot td {
+  border-top: 1px solid var(--line-strong);
+  border-bottom: none;
+  font-weight: 600;
+}
+
+.gain {
+  color: var(--gain);
+}
+.loss {
+  color: var(--loss);
+}
+
+/* ------------------------------------------------------------------ */
+/* Skeleton and motion utilities                                       */
+/* ------------------------------------------------------------------ */
+
+.skeleton {
+  background: var(--glass-fill-hover);
+  border-radius: var(--radius-control);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: var(--len, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.marquee-rule {
+  height: 1px;
+  background: var(--line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+}
