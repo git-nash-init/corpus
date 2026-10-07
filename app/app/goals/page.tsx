@@ -91,7 +91,7 @@ function GoalView({ goal, currentValue, today, onSave, portfolioXirr }: { goal: 
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Current corpus" value={currentValue} note={`${formatPercent(s.progress, { decimals: 2 })} of ${formatINRShort(target)}`} />
         <Stat label="Still to build" value={s.remaining} note={`By ${formatDate(goal.targetDate)}`} delay={0.06} />
         <Stat label="SIP needed a month" value={s.sipNeeded} note={s.sipNeeded === 0 ? "Your corpus alone gets there" : `You invest ${formatINR(sip, { decimals: 0 })} today`} delay={0.12} />
@@ -199,7 +199,7 @@ function GoalForm({ goal, userId, today, onSave, onCancel }: { goal: Goal | null
     if (sip.trim() !== "" && !(num(sip) >= 0)) e.sip = "SIP cannot be negative.";
     setErr(e);
     if (Object.keys(e).length) return;
-    onSave({ id: goal?.id ?? `g-${Math.random().toString(36).slice(2, 9)}`, userId, name: name.trim(), target: num(target), targetDate: date, expectedReturn: num(ret) / 100, monthlySip: sip.trim() === "" ? 0 : num(sip) });
+    onSave({ id: goal?.id ?? crypto.randomUUID(), userId, name: name.trim(), target: num(target), targetDate: date, expectedReturn: num(ret) / 100, monthlySip: sip.trim() === "" ? 0 : num(sip) });
   };
 
   return (

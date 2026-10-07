@@ -5,7 +5,8 @@ const COLS = [
   {
     title: "Product",
     links: [
-      { href: "/app", label: "Live demo" },
+      { href: "/signup", label: "Create an account" },
+      { href: "/login", label: "Log in" },
       { href: "/#calculator", label: "Crore calculator" },
       { href: "/#xirr", label: "How XIRR works" },
       { href: "/#faq", label: "FAQ" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AllocationBar } from "@/components/charts/AllocationBar";
 import { Meter } from "@/components/charts/Meter";
 import { Badge, EmptyState, PageHeader, Section, Signed, Stat } from "@/components/app/kit";
@@ -12,6 +12,9 @@ import { displayReturn, FUND_CATEGORIES, type FundPosition } from "@/lib/engine/
 import { formatDate, formatINR, formatNumber, formatPercent } from "@/lib/engine/format";
 import { useApp } from "@/lib/state/useApp";
 import { useStore } from "@/lib/state/store";
+import { fundHistory, fundLatest, searchFunds, type FundHit, type FundInfo } from "@/lib/market/api";
+import { navOnOrBefore } from "@/lib/market/nav";
+import { PriceStatus } from "@/components/app/PriceStatus";
 import type { Fund, FundCategory, FundTxnType, SipStatus } from "@/lib/data/types";
 
 const num = (s: string) => (s.trim() === "" ? NaN : Number(s));
@@ -39,6 +42,7 @@ export default function MutualFundsPage() {
         subtitle="Units and value come from each transaction's NAV. Returns switch from absolute to XIRR once a holding is a year old."
         actions={
           <>
+            <PriceStatus />
             <Button onClick={() => setFundModal(true)}>Add fund</Button>
             <Button variant="primary" onClick={() => setTxnModal(null)} disabled={data.funds.length === 0}>
               Log investment
@@ -47,7 +51,7 @@ export default function MutualFundsPage() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Total invested" value={d.mf.invested} note="Cost of units still held" />
         <Stat label="Current value" value={d.mf.currentValue} note="Units x latest NAV" delay={0.06} />
         <Stat
@@ -314,6 +318,11 @@ function FundDetail({
 }
 
 function FundModal({ open, onClose, onSave, today }: { open: boolean; onClose: () => void; onSave: (f: Omit<Fund, "id" | "userId">) => void; today: string }) {
+  const [query, setQuery] = useState("");
+  const [pickError, setPickError] = useState<string | null>(null);
+  const [picked, setPicked] = useState<FundInfo | null>(null);
+  const [loadingPick, setLoadingPick] = useState(false);
+  const [manual, setManual] = useState(false);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<FundCategory>("Equity");
   const [sip, setSip] = useState("");
@@ -321,20 +330,72 @@ function FundModal({ open, onClose, onSave, today }: { open: boolean; onClose: (
   const [nav, setNav] = useState("");
   const [err, setErr] = useState<Record<string, string>>({});
 
+  // Debounced live search of the AMFI scheme directory. Results remember the query they answer,
+  // so "searching" is simply "the latest query has no result yet".
+  const [res, setRes] = useState<{ q: string; hits: FundHit[]; failed: boolean } | null>(null);
+  const q = query.trim();
+  const activeSearch = !picked && !manual && q.length >= 2;
+  useEffect(() => {
+    if (!activeSearch) return;
+    const t = window.setTimeout(() => {
+      searchFunds(q)
+        .then((h) => setRes({ q, hits: h, failed: false }))
+        .catch(() => setRes({ q, hits: [], failed: true }));
+    }, 300);
+    return () => window.clearTimeout(t);
+  }, [q, activeSearch]);
+  const answered = activeSearch && res?.q === q;
+  const searching = activeSearch && !answered;
+  const hits = answered ? res.hits : [];
+  const searchFailed = answered && res.failed;
+
+  const pick = async (h: FundHit) => {
+    setLoadingPick(true);
+    setPickError(null);
+    try {
+      const info = await fundLatest(h.code);
+      setPicked(info);
+      setCategory(info.category);
+    } catch {
+      setPickError("Could not load that fund's NAV. Try another, or enter it manually.");
+    } finally {
+      setLoadingPick(false);
+    }
+  };
+
+  const reset = () => {
+    setQuery("");
+    setPicked(null);
+    setManual(false);
+    setName("");
+    setSip("");
+    setNav("");
+    setErr({});
+  };
+
   const submit = () => {
     const e: Record<string, string> = {};
-    if (!name.trim()) e.name = "Enter the fund name.";
-    if (!(num(nav) > 0)) e.nav = "Enter the latest NAV, for example 102.45.";
+    const finalName = picked ? picked.name : name.trim();
+    const finalNav = picked ? picked.latest.nav : num(nav);
+    if (!finalName) e.name = !manual ? "Search for your fund, or choose to enter it manually." : "Enter the fund name.";
+    if (!(finalNav > 0)) e.nav = "Enter the latest NAV, for example 102.45.";
     if (sip.trim() !== "" && !(num(sip) >= 0)) e.sip = "SIP amount cannot be negative.";
     const dn = num(day);
     if (!(dn >= 1 && dn <= 28)) e.day = "Choose a day from 1 to 28.";
     setErr(e);
     if (Object.keys(e).length) return;
     const amt = sip.trim() === "" ? 0 : num(sip);
-    onSave({ name: name.trim(), category, sipAmount: amt, sipDay: dn, sipStatus: amt > 0 ? "Active" : "Stopped", latestNav: num(nav), navDate: today });
-    setName("");
-    setSip("");
-    setNav("");
+    onSave({
+      name: finalName,
+      category,
+      amfiCode: picked?.code,
+      sipAmount: amt,
+      sipDay: dn,
+      sipStatus: amt > 0 ? "Active" : "Stopped",
+      latestNav: finalNav,
+      navDate: picked ? picked.latest.date : today,
+    });
+    reset();
   };
 
   return (
@@ -342,7 +403,7 @@ function FundModal({ open, onClose, onSave, today }: { open: boolean; onClose: (
       open={open}
       onClose={onClose}
       title="Add a fund"
-      description="Add the fund first, then log what you invest in it."
+      description="Search the AMFI directory so NAVs stay live, then log what you invest."
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
@@ -362,7 +423,55 @@ function FundModal({ open, onClose, onSave, today }: { open: boolean; onClose: (
         }}
         noValidate
       >
-        <TextField label="Fund name" required value={name} onChange={(e) => setName(e.target.value)} error={err.name} placeholder="Nippon India Large Cap Fund" />
+        {picked ? (
+          <div className="rounded-[4px] border border-line p-4">
+            <p className="text-[16px]">{picked.name}</p>
+            <p className="mt-1 text-sm text-ink-2">
+              {picked.house}, {picked.schemeCategory}
+            </p>
+            <p className="num mt-2 text-sm text-ink-2">
+              NAV {formatNumber(picked.latest.nav, 2)} on {formatDate(picked.latest.date)}
+            </p>
+            <button type="button" className="mt-3 text-sm text-brass underline underline-offset-4" onClick={() => setPicked(null)}>
+              Choose a different fund
+            </button>
+          </div>
+        ) : manual ? (
+          <>
+            <TextField label="Fund name" required value={name} onChange={(e) => setName(e.target.value)} error={err.name} />
+            <TextField label="Latest NAV" required type="number" inputMode="decimal" step="0.01" value={nav} onChange={(e) => setNav(e.target.value)} error={err.nav} />
+            <button type="button" className="text-sm text-brass underline underline-offset-4" onClick={() => setManual(false)}>
+              Search the directory instead
+            </button>
+          </>
+        ) : (
+          <div>
+            <TextField label="Search for a fund" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="HDFC Mid Cap Direct Growth" error={err.name} autoComplete="off" hint="Type at least two letters of the fund name." />
+            {searching || loadingPick ? <p className="mt-3 text-sm text-ink-3">{loadingPick ? "Loading the fund..." : "Searching..."}</p> : null}
+            {searchFailed || pickError ? (
+              <p className="mt-3 text-sm" style={{ color: "var(--loss)" }} role="alert">
+                {pickError ?? "Search is unavailable right now. You can enter the fund manually."}
+              </p>
+            ) : null}
+            {hits.length ? (
+              <ul className="mt-3 max-h-[260px] divide-y divide-[var(--line)] overflow-y-auto rounded-[4px] border border-line" aria-label="Matching funds">
+                {hits.slice(0, 12).map((h) => (
+                  <li key={h.code}>
+                    <button type="button" className="w-full px-4 py-3 text-left text-[15px] leading-snug transition-colors duration-150 hover:bg-[var(--glass-fill-hover)]" onClick={() => void pick(h)}>
+                      {h.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : query.trim().length >= 2 && !searching && !searchFailed && !pickError ? (
+              <p className="mt-3 text-sm text-ink-3">No funds matched. Try fewer words, for example the fund house and category.</p>
+            ) : null}
+            <button type="button" className="mt-4 text-sm text-brass underline underline-offset-4" onClick={() => setManual(true)}>
+              Cannot find it? Enter it manually
+            </button>
+          </div>
+        )}
+
         <SelectField label="Category" value={category} onChange={(e) => setCategory(e.target.value as FundCategory)}>
           {FUND_CATEGORIES.map((c) => (
             <option key={c}>{c}</option>
@@ -372,7 +481,6 @@ function FundModal({ open, onClose, onSave, today }: { open: boolean; onClose: (
           <TextField label="Monthly SIP (Rs)" type="number" inputMode="numeric" value={sip} onChange={(e) => setSip(e.target.value)} error={err.sip} hint="Leave empty if none." />
           <TextField label="SIP day of month" type="number" inputMode="numeric" value={day} onChange={(e) => setDay(e.target.value)} error={err.day} />
         </div>
-        <TextField label="Latest NAV" required type="number" inputMode="decimal" step="0.01" value={nav} onChange={(e) => setNav(e.target.value)} error={err.nav} />
         <button type="submit" className="sr-only" tabIndex={-1}>
           Add fund
         </button>
@@ -404,17 +512,37 @@ function TxnModal({
   const [err, setErr] = useState<Record<string, string>>({});
 
   const chosen = useMemo(() => funds.find((f) => f.id === (fundId ?? pick)) ?? funds[0], [funds, fundId, pick]);
+  const code = chosen?.amfiCode;
+
+  // The NAV in force on the chosen date, from the public AMFI history. The result carries the key it answers.
+  const [navRes, setNavRes] = useState<{ key: string; hit: { nav: number; date: string } | null } | null>(null);
+  const navKey = open && code && date ? `${code}|${date}` : null;
+  useEffect(() => {
+    if (!navKey || !code) return;
+    let live = true;
+    fundHistory(code)
+      .then((h) => live && setNavRes({ key: navKey, hit: navOnOrBefore(h, date) }))
+      .catch(() => live && setNavRes({ key: navKey, hit: null }));
+    return () => {
+      live = false;
+    };
+  }, [navKey, code, date]);
+  const answeredNav = navKey !== null && navRes?.key === navKey;
+  const auto = answeredNav ? navRes.hit : null;
+  const autoState: "idle" | "loading" | "missing" = navKey === null ? "idle" : !answeredNav ? "loading" : navRes.hit ? "idle" : "missing";
+
+  const effectiveNav = nav.trim() !== "" ? num(nav) : (auto?.nav ?? chosen?.latestNav ?? NaN);
+  const units = num(amount) > 0 && effectiveNav > 0 ? num(amount) / effectiveNav : null;
 
   const submit = () => {
     const e: Record<string, string> = {};
     if (!chosen) e.fund = "Choose a fund.";
     if (!date || date > today) e.date = "Choose a date that is not in the future.";
     if (!(num(amount) > 0)) e.amount = "Enter an amount greater than zero.";
-    const n = nav.trim() === "" ? chosen?.latestNav : num(nav);
-    if (!(n && n > 0)) e.nav = "Enter the NAV on that date.";
+    if (!(effectiveNav > 0)) e.nav = "Enter the NAV on that date.";
     setErr(e);
-    if (Object.keys(e).length || !chosen || !n) return;
-    onSave({ fundId: chosen.id, date, type, amount: num(amount), nav: n });
+    if (Object.keys(e).length || !chosen) return;
+    onSave({ fundId: chosen.id, date, type, amount: num(amount), nav: effectiveNav });
     setAmount("");
     setNav("");
   };
@@ -461,8 +589,27 @@ function TxnModal({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <TextField label="Amount (Rs)" type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} error={err.amount} />
-          <TextField label="NAV on the date" type="number" inputMode="decimal" step="0.01" value={nav} onChange={(e) => setNav(e.target.value)} placeholder={chosen ? String(chosen.latestNav) : ""} error={err.nav} hint="Empty uses the latest NAV." />
+          <TextField
+            label="NAV on the date"
+            type="number"
+            inputMode="decimal"
+            step="0.0001"
+            value={nav}
+            onChange={(e) => setNav(e.target.value)}
+            placeholder={auto ? String(auto.nav) : chosen ? String(chosen.latestNav) : ""}
+            error={err.nav}
+            hint={
+              autoState === "loading"
+                ? "Looking up the NAV..."
+                : auto
+                  ? `Live AMFI NAV${auto.date !== date ? ` from ${formatDate(auto.date)}` : ""}. Edit to override.`
+                  : code
+                    ? "No NAV found for that date. Enter it, or the latest NAV is used."
+                    : "Empty uses the latest NAV."
+            }
+          />
         </div>
+        {units !== null ? <p className="num text-sm text-ink-2">About {formatNumber(units, 3)} units</p> : null}
         <button type="submit" className="sr-only" tabIndex={-1}>
           Save
         </button>

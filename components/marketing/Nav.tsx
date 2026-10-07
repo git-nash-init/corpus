@@ -50,8 +50,11 @@ export function Nav() {
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle className="hidden sm:inline-flex" />
-            <LinkButton href="/app" variant="primary" size="sm" className="hidden sm:inline-flex">
-              Open the demo
+            <LinkButton href="/login" variant="ghost" size="sm" className="hidden sm:inline-flex">
+              Log in
+            </LinkButton>
+            <LinkButton href="/signup" variant="primary" size="sm" className="hidden sm:inline-flex">
+              Create account
             </LinkButton>
             <button type="button" className="btn btn-icon btn-sm md:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
               <List size={20} weight="light" />
@@ -69,9 +72,14 @@ export function Nav() {
           ))}
         </nav>
         <div className="mt-8 flex items-center gap-3">
-          <LinkButton href="/app" variant="primary" onClick={() => setOpen(false)}>
-            Open the demo
+          <LinkButton href="/signup" variant="primary" onClick={() => setOpen(false)}>
+            Create account
           </LinkButton>
+          <LinkButton href="/login" onClick={() => setOpen(false)}>
+            Log in
+          </LinkButton>
+        </div>
+        <div className="mt-6">
           <ThemeToggle />
         </div>
       </Modal>

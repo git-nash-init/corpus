@@ -6,6 +6,7 @@ import { LineChart } from "@/components/charts/LineChart";
 import { Meter } from "@/components/charts/Meter";
 import { Badge, PageHeader, Section, Signed, Stat } from "@/components/app/kit";
 import { LinkButton } from "@/components/ui/Button";
+import { EmptyState } from "@/components/app/kit";
 import { Reveal } from "@/components/motion/Reveal";
 import { isSameMonth } from "@/lib/engine/dates";
 import { formatDate, formatINR, formatINRShort, formatMonth, formatPercent } from "@/lib/engine/format";
@@ -49,7 +50,27 @@ export default function OverviewPage() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {d.summary.currentValue === 0 && d.netWorth.totalAssets === 0 ? (
+        <Reveal>
+          <Section eyebrow="Get started" title="Your ledger is empty">
+            <EmptyState
+              title="Add what you own"
+              body="Start with a mutual fund, a stock or a deposit, or bring your whole spreadsheet across in one go. Every figure on this page is calculated from what you add."
+              action={
+                <div className="flex flex-wrap gap-3">
+                  <LinkButton href="/app/settings" variant="primary">
+                    Import your spreadsheet
+                  </LinkButton>
+                  <LinkButton href="/app/mutual-funds">Add a mutual fund</LinkButton>
+                  <LinkButton href="/app/stocks">Record a stock trade</LinkButton>
+                </div>
+              }
+            />
+          </Section>
+        </Reveal>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Net worth" value={d.netWorth.netWorth} note="Assets minus liabilities" delay={0} />
         <Stat label="Total invested" value={d.summary.invested} note="Principal put to work" delay={0.06} />
         <Stat

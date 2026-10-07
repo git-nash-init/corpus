@@ -8,15 +8,14 @@ export default function SecurityPage() {
     <DocPage
       eyebrow="Trust"
       title="Security"
-      intro="Financial records deserve careful handling. This page separates what is true of the demo today from what we are building for accounts, so you always know which is which."
-      updated="29 September 2026"
+      intro="Financial records deserve careful handling. This page describes how your data is protected and what we do not ask for."
+      updated="7 October 2026"
     >
-      <DocSection n="01" title="The demo today">
+      <DocSection n="01" title="How your account is protected">
         <ul>
-          <li>Everything you enter stays in your own browser. Nothing is uploaded to a server.</li>
-          <li>There are no accounts, so there are no passwords to steal.</li>
+          <li>You sign in with an email and password, and your email is confirmed before the account is used.</li>
           <li>The site loads over HTTPS and uses no advertising or tracking scripts.</li>
-          <li>You can export your data, or wipe it with Reset, from Settings.</li>
+          <li>You can export your data, or delete all of it, from Settings.</li>
         </ul>
       </DocSection>
 
@@ -24,7 +23,7 @@ export default function SecurityPage() {
         <p>Net banking, broker or demat passwords, one time passwords, PAN and Aadhaar. Crorpus works from what you enter yourself, so it never needs the keys to your accounts.</p>
       </DocSection>
 
-      <DocSection n="03" title="What we are building for accounts">
+      <DocSection n="03" title="How your data is kept separate">
         <ul>
           <li>
             <strong>Isolation.</strong> Every record is tied to your user and protected by row level security in the database, so one account cannot read another&rsquo;s data.
@@ -33,7 +32,7 @@ export default function SecurityPage() {
             <strong>Encryption.</strong> Data is encrypted in transit, and at rest in the hosted database.
           </li>
           <li>
-            <strong>Least access.</strong> Service keys stay on the server and never ship to the browser.
+            <strong>Private files.</strong> Documents and photos sit in private storage folders named for your account and open only through short-lived links.
           </li>
           <li>
             <strong>Control.</strong> Export and delete your data from Settings.
@@ -42,7 +41,7 @@ export default function SecurityPage() {
       </DocSection>
 
       <DocSection n="04" title="Your part">
-        <p>Use a strong, unique password, keep your device updated, and be careful on shared computers. If you use the demo on a shared device, use Reset when you are done.</p>
+        <p>Use a strong, unique password, keep your device updated, and be careful on shared computers. If you use a shared device, log out when you are done.</p>
       </DocSection>
 
       <DocSection n="05" title="Reporting a problem">

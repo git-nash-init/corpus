@@ -10,10 +10,10 @@ export function PageHeader({ eyebrow, title, subtitle, actions }: { eyebrow: str
     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="eyebrow">{eyebrow}</p>
-        <h1 className="mt-2 text-[clamp(32px,4vw,44px)]">{title}</h1>
+        <h1 className="mt-2 text-[clamp(30px,4vw,44px)]">{title}</h1>
         {subtitle ? <p className="mt-2 max-w-[62ch] text-ink-2">{subtitle}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
     </header>
   );
 }
@@ -36,7 +36,7 @@ export function Section({
   return (
     <section className={`panel ${className}`}>
       {(title || actions) && (
-        <div className="flex flex-wrap items-end justify-between gap-3 px-6 pt-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 px-4 pt-5 sm:px-6 sm:pt-6">
           <div>
             {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
             {title ? <h2 className="mt-1 text-[24px]">{title}</h2> : null}
@@ -44,7 +44,7 @@ export function Section({
           {actions}
         </div>
       )}
-      <div className={flush ? "pt-4" : "p-6"}>{children}</div>
+      <div className={flush ? "pt-4" : "p-4 sm:p-6"}>{children}</div>
     </section>
   );
 }
@@ -67,12 +67,12 @@ export function Stat({
   const toneClass = tone === "gain" ? "gain" : tone === "loss" ? "loss" : "";
   return (
     <Reveal delay={delay}>
-      <div className="panel h-full p-6">
+      <div className="panel h-full p-4 sm:p-6">
         <p className="eyebrow">{label}</p>
-        <p className={`font-display mt-3 text-[clamp(28px,3vw,36px)] leading-none ${toneClass}`}>
+        <p className={`font-display mt-3 text-[clamp(21px,5.4vw,36px)] leading-none ${toneClass}`}>
           <CountUp value={value} format={format} />
         </p>
-        {note ? <p className="mt-3 text-sm text-ink-2">{note}</p> : null}
+        {note ? <p className="mt-3 text-[13px] leading-snug text-ink-2 sm:text-sm">{note}</p> : null}
       </div>
     </Reveal>
   );

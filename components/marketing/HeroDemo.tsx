@@ -29,7 +29,7 @@ export function HeroDemo() {
     <div className="glass overflow-hidden rounded-[6px]" style={{ background: "color-mix(in srgb, var(--bg-raised) 72%, transparent)" }}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
-          <span className="eyebrow">Live demo</span>
+          <span className="eyebrow">Sample portfolio</span>
           <span className="hidden text-[13px] text-ink-3 sm:inline">{today ? formatDate(today) : ""}</span>
         </div>
         <div role="tablist" aria-label="Demo views" className="flex gap-2">

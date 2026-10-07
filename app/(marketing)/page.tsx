@@ -14,7 +14,7 @@ const FACTS = [
   ["Indian formats", "Lakh and crore grouping throughout."],
   ["XIRR as Excel defines it", "Matched to the spreadsheet function it replaces."],
   ["Traceable figures", "Every number comes from a transaction you entered."],
-  ["Private by default", "The demo sends nothing to a server."],
+  ["Private by default", "Your records are visible only to you."],
 ];
 
 const FIXES = [
@@ -76,14 +76,14 @@ export default function LandingPage() {
           </Reveal>
           <Reveal delay={0.65}>
             <div className="flex flex-wrap gap-3">
-              <LinkButton href="/app" variant="primary" size="lg">
-                Open the live demo
+              <LinkButton href="/signup" variant="primary" size="lg">
+                Create your free account
               </LinkButton>
               <LinkButton href="/#spreadsheet" size="lg">
                 See what it replaces
               </LinkButton>
             </div>
-            <p className="mt-4 text-sm text-ink-3">No bank login and no card. The demo runs entirely in your browser.</p>
+            <p className="mt-4 text-sm text-ink-3">No bank login and no card. Already a member? <a href="/login" className="text-brass underline underline-offset-4">Log in</a>.</p>
           </Reveal>
         </div>
         <Reveal delay={0.3} y={40} className="mt-14">
@@ -142,8 +142,8 @@ export default function LandingPage() {
           ))}
         </ol>
         <Reveal className="mt-10">
-          <LinkButton href="/app" variant="primary">
-            Explore every screen in the demo
+          <LinkButton href="/signup" variant="primary">
+            Start tracking for free
           </LinkButton>
         </Reveal>
       </section>
@@ -203,10 +203,10 @@ export default function LandingPage() {
         </Reveal>
         <dl className="mt-12 divide-y divide-[var(--line)] border-y border-line">
           {[
-            ["Today", "The demo keeps everything in your own browser. Nothing is uploaded. Clear your site data and it is gone, so export a copy from Settings whenever you like."],
+            ["Your records", "Every record belongs to your account alone. The database enforces that with row level security, so even a faulty screen cannot show you someone else's data."],
             ["What we never ask for", "Net banking, broker or demat passwords, OTPs, PAN and Aadhaar. You enter your own transactions and balances."],
-            ["With accounts", "Each record will belong to you alone, enforced by row level security in the database, encrypted in transit and at rest, with export and delete in Settings."],
-            ["Your data", "We do not sell your data or use your holdings to target you with ads."],
+            ["Your files", "Statements and receipts go into a private vault. Files are never public and open only through short-lived links, and everything is encrypted in transit and at rest."],
+            ["Your control", "Export everything or delete all of it from Settings at any time. We do not sell your data or use your holdings to target you with ads."],
           ].map(([t, b]) => (
             <Reveal key={t} className="grid gap-3 py-7 md:grid-cols-[240px_1fr] md:gap-10">
               <dt className="font-display text-[24px]">{t}</dt>
@@ -232,31 +232,31 @@ export default function LandingPage() {
           <Reveal>
             <div className="panel h-full p-8">
               <p className="eyebrow">Free</p>
-              <p className="font-display mt-3 text-[40px] leading-none">Everything in the demo</p>
+              <p className="font-display mt-3 text-[40px] leading-none">Everything you see here</p>
               <ol className="mt-8 divide-y divide-[var(--line)] border-t border-line text-[16px]">
-                {["Unlimited funds, stocks and assets", "XIRR, allocation and net worth", "Goal planner with what-if panel", "Monthly review and wealth history", "Export your data any time"].map((t) => (
+                {["Unlimited funds, stocks and assets", "Live AMFI NAVs and NSE prices", "Spreadsheet import and a private document vault", "Goal planner with what-if panel", "Export your data any time"].map((t) => (
                   <li key={t} className="py-4 text-ink-2">
                     {t}
                   </li>
                 ))}
               </ol>
-              <LinkButton href="/app" variant="primary" className="mt-8">
-                Open the demo
+              <LinkButton href="/signup" variant="primary" className="mt-8">
+                Create your free account
               </LinkButton>
             </div>
           </Reveal>
           <Reveal delay={0.08}>
             <div className="panel h-full p-8">
               <p className="eyebrow">Pro</p>
-              <p className="font-display mt-3 text-[40px] leading-none">Live data and more, price announced at launch</p>
+              <p className="font-display mt-3 text-[40px] leading-none">More for serious trackers, price announced at launch</p>
               <ol className="mt-8 divide-y divide-[var(--line)] border-t border-line text-[16px]">
-                {["Live NSE prices and AMFI NAVs", "Import from your spreadsheet", "Multiple portfolios and a family view", "Alerts for missed SIPs and maturities", "Sync across every device"].map((t) => (
+                {["Multiple portfolios and a family view", "Alerts for missed SIPs and maturities", "Tax gain reports", "Automatic month-end snapshots", "Priority support"].map((t) => (
                   <li key={t} className="py-4 text-ink-2">
                     {t}
                   </li>
                 ))}
               </ol>
-              <p className="mt-8 text-sm text-ink-3">Arrives with accounts and the hosted database.</p>
+              <p className="mt-8 text-sm text-ink-3">Planned. Everything on the free plan stays free.</p>
             </div>
           </Reveal>
         </div>
@@ -278,10 +278,10 @@ export default function LandingPage() {
         <Reveal>
           <div className="panel p-8 sm:p-16">
             <h2 className={`${h2} max-w-[18ch]`}>Bring your whole picture together.</h2>
-            <p className="mt-6 max-w-[52ch] text-[18px] text-ink-2">Open the demo, change a number, and watch every screen follow. It takes about a minute to see how it works.</p>
+            <p className="mt-6 max-w-[52ch] text-[18px] text-ink-2">Create an account, add a fund, and watch every screen follow. It takes about a minute to see how it works.</p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <LinkButton href="/app" variant="primary" size="lg">
-                Open the live demo
+              <LinkButton href="/signup" variant="primary" size="lg">
+                Create your free account
               </LinkButton>
               <LinkButton href="/#calculator" size="lg">
                 Try the calculator

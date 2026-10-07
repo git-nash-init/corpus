@@ -35,9 +35,9 @@ export default function AboutPage() {
       </DocSection>
 
       <DocSection n="04" title="Where it is going">
-        <p>Accounts, a hosted database, live NSE prices and AMFI NAVs, and import from the original spreadsheet are next. The demo you can open today runs on the same calculation engine.</p>
-        <LinkButton href="/app" variant="primary" className="mt-2">
-          Open the live demo
+        <p>Accounts, live AMFI NAVs and NSE prices, a private document vault and spreadsheet import are here. Next are multiple portfolios, alerts for missed SIPs and maturities, and tax gain reports.</p>
+        <LinkButton href="/signup" variant="primary" className="mt-2">
+          Create your free account
         </LinkButton>
       </DocSection>
     </DocPage>

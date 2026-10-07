@@ -19,10 +19,11 @@ export function Reveal({
 }) {
   const reduce = useReducedMotion();
   const Tag = motion[as];
-  if (reduce) return <Tag className={className}>{children}</Tag>;
+  const cls = `min-w-0 ${className ?? ""}`;
+  if (reduce) return <Tag className={cls}>{children}</Tag>;
   return (
     <Tag
-      className={className}
+      className={cls}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -8% 0px" }}

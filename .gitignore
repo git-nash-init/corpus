@@ -65,3 +65,5 @@ crorpus-export-*.json
 
 # Unused generated brand draft
 public/brand/crorpus-logo-canva.png
+
+!.env.example

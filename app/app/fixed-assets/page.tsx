@@ -43,7 +43,7 @@ export default function FixedAssetsPage() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Principal contributed" value={d.fixed.invested} note="Money you put in" />
         <Stat label="Current value" value={d.fixed.currentValue} note="Latest verified balance" delay={0.06} />
         <Stat label="Gain or interest" value={d.fixed.gain} tone={d.fixed.gain >= 0 ? "gain" : "loss"} note="Value minus principal" delay={0.12} />
@@ -200,7 +200,7 @@ function AssetForm({ asset, userId, onSave, onCancel, onDelete }: { asset: Fixed
     setErr(e);
     if (Object.keys(e).length) return;
     onSave({
-      id: asset?.id ?? `fa-${Math.random().toString(36).slice(2, 9)}`,
+      id: asset?.id ?? crypto.randomUUID(),
       userId,
       kind,
       name: name.trim(),

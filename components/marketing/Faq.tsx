@@ -8,8 +8,8 @@ const ITEMS = [
     a: "No. Crorpus never asks for net banking, broker or demat credentials. You record your own transactions and balances, and everything is calculated from those entries.",
   },
   {
-    q: "Where is my data stored today?",
-    a: "The demo keeps everything in your own browser and sends nothing to a server. Accounts, sync across devices and a hosted database arrive in the next phase. Until then, use Settings to export a copy of your data.",
+    q: "Where is my data stored?",
+    a: "In a hosted database tied to your account, with row level security so only you can read it. Uploaded files sit in a private vault and open only through short-lived links. You can export everything or delete it from Settings.",
   },
   {
     q: "Which investments can I track?",
@@ -17,11 +17,11 @@ const ITEMS = [
   },
   {
     q: "Can I bring my spreadsheet across?",
-    a: "Import from the original spreadsheet layout is planned with the database connection. You can move data between devices today with the JSON export and import in Settings.",
+    a: "Yes. Upload the original Investment Tracker workbook as .xlsx during setup or from Settings. Crorpus matches your funds to live schemes, looks up the NAV on every transaction date, and shows a preview before importing anything.",
   },
   {
     q: "Are the prices live?",
-    a: "Not yet. In the demo you enter the latest NAV and share prices yourself. Live NSE prices and AMFI NAVs are part of the next phase.",
+    a: "Mutual fund NAVs come from the public AMFI data via mfapi.in, and NSE share prices from a public market data feed. They refresh when you open the app, and you can refresh by hand. If a source is down, Crorpus shows your last saved price and says so.",
   },
   {
     q: "Is this investment advice?",

@@ -21,7 +21,7 @@ interface Props {
   zeroBased?: boolean;
 }
 
-const M = { top: 16, right: 16, bottom: 30, left: 64 };
+const M = { top: 16, right: 12, bottom: 30, left: 56 };
 
 function niceTicks(min: number, max: number, count = 4) {
   if (max === min) return [min];
@@ -36,7 +36,7 @@ function niceTicks(min: number, max: number, count = 4) {
 
 export function LineChart({ labels, series, yFormat, tooltipFormat, height = 280, ariaLabel, zeroBased = true }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(640);
+  const [width, setWidth] = useState(300);
   const [active, setActive] = useState<number | null>(null);
   const reduce = useReducedMotion();
   const uid = useId();
@@ -44,7 +44,7 @@ export function LineChart({ labels, series, yFormat, tooltipFormat, height = 280
   useEffect(() => {
     const el = wrap.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setWidth(Math.max(280, e.contentRect.width)));
+    const ro = new ResizeObserver(([e]) => setWidth(Math.max(220, e.contentRect.width)));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -83,7 +83,7 @@ export function LineChart({ labels, series, yFormat, tooltipFormat, height = 280
   return (
     <div
       ref={wrap}
-      className="relative w-full"
+      className="relative w-full min-w-0 max-w-full"
       tabIndex={0}
       role="group"
       aria-label={`${ariaLabel}. Use left and right arrow keys to read values.`}
@@ -96,7 +96,7 @@ export function LineChart({ labels, series, yFormat, tooltipFormat, height = 280
         if (e.key === "Escape") setActive(null);
       }}
     >
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block overflow-visible">
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block max-w-full overflow-visible">
         {ticks.map((t) => (
           <g key={t}>
             <line x1={M.left} x2={width - M.right} y1={y(t)} y2={y(t)} stroke="var(--line)" strokeWidth={1} />
@@ -194,7 +194,8 @@ export function LineChart({ labels, series, yFormat, tooltipFormat, height = 280
       <div className="sr-only" aria-live="polite">
         {active !== null ? `${labels[active]}: ${series.map((s) => `${s.name} ${s.values[active] === null ? "no data" : fmt(s.values[active] as number)}`).join(", ")}` : ""}
       </div>
-      <table className="sr-only" aria-labelledby={uid}>
+      <div className="sr-only">
+      <table aria-labelledby={uid}>
         <caption id={uid}>{ariaLabel}</caption>
         <thead>
           <tr>
@@ -217,6 +218,7 @@ export function LineChart({ labels, series, yFormat, tooltipFormat, height = 280
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

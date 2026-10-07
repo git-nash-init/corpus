@@ -15,6 +15,8 @@ export interface Fund {
   sipStatus: SipStatus;
   latestNav: number;
   navDate: ISODate;
+  /** AMFI scheme code, used to fetch live NAVs. */
+  amfiCode?: string;
   /** When set, replaces units x NAV for current value. */
   manualValue?: number;
 }
@@ -42,6 +44,7 @@ export const SECTORS = [
   "Telecom",
   "Chemicals",
   "Consumer Tech",
+  "Other",
 ] as const;
 export type Sector = (typeof SECTORS)[number];
 
@@ -60,6 +63,8 @@ export interface StockQuote {
   name: string;
   sector: Sector;
   cmp: number;
+  /** ISO timestamp of the last price update. */
+  asOf?: string;
 }
 
 export type LiquidityTag = "Locked" | "Semi-Liquid" | "Highly Liquid";
@@ -113,4 +118,64 @@ export interface Snapshot {
   totalLiabilities: number;
   netWorth: number;
   investmentValue: number;
+}
+
+export interface ReviewItem {
+  id: string;
+  position: number;
+  action: string;
+  timeline: string;
+  focus: string;
+  done: boolean;
+}
+
+export interface ReviewNote {
+  id: string;
+  category: "Key wins" | "Improvements" | "Next actions";
+  text: string;
+}
+
+export const DOCUMENT_KINDS = ["Statement", "Contract note", "FD receipt", "Import", "Other"] as const;
+export type DocumentKind = (typeof DOCUMENT_KINDS)[number];
+export type LinkedType = "fund" | "stock" | "fixed_asset" | "liability" | "balance_asset";
+
+export interface DocumentRecord {
+  id: string;
+  storagePath: string;
+  fileName: string;
+  mime: string;
+  size: number;
+  kind: DocumentKind;
+  linkedType: LinkedType | null;
+  linkedId: string | null;
+  createdAt: string;
+}
+
+export type ThemePref = "system" | "light" | "dark";
+
+export interface Profile {
+  id: string;
+  email: string;
+  displayName: string | null;
+  avatar: string | null; // "preset:<key>" or a storage path in the avatars bucket
+  theme: ThemePref;
+  onboardedAt: string | null;
+}
+
+/** Everything one user owns. The engine derives every figure from this. */
+export interface AppData {
+  version: 1;
+  userId: string;
+  funds: Fund[];
+  fundTxns: FundTxn[];
+  stockTxns: StockTxn[];
+  quotes: StockQuote[];
+  fixedAssets: FixedAsset[];
+  balanceAssets: BalanceAsset[];
+  liabilities: Liability[];
+  goals: Goal[];
+  snapshots: Snapshot[];
+  reviewItems: ReviewItem[];
+  reviewNotes: ReviewNote[];
+  documents: DocumentRecord[];
 }

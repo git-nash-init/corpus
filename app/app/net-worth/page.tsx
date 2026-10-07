@@ -50,7 +50,7 @@ export default function NetWorthPage() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Total assets" value={nw.totalAssets} note="Gross wealth base" />
         <Stat label="Total liabilities" value={nw.totalLiabilities} note="All outstanding debts" delay={0.06} />
         <Stat label="Net worth" value={nw.netWorth} tone={nw.netWorth >= 0 ? "gain" : "loss"} note="Assets minus debts" delay={0.12} />
@@ -195,7 +195,7 @@ function AssetForm({ item, userId, onSave, onCancel }: { item: BalanceAsset | nu
     if (!(num(value) >= 0)) e.value = "Enter a value of zero or more.";
     setErr(e);
     if (Object.keys(e).length) return;
-    onSave({ id: item?.id ?? `b-${Math.random().toString(36).slice(2, 9)}`, userId, name: name.trim(), kind, value: num(value) });
+    onSave({ id: item?.id ?? crypto.randomUUID(), userId, name: name.trim(), kind, value: num(value) });
   };
   return (
     <form
@@ -238,7 +238,7 @@ function LiabilityForm({ item, userId, onSave, onCancel, onDelete }: { item: Lia
     if (!(num(amount) >= 0)) e.amount = "Enter the outstanding amount, zero if cleared.";
     setErr(e);
     if (Object.keys(e).length) return;
-    onSave({ id: item?.id ?? `l-${Math.random().toString(36).slice(2, 9)}`, userId, name: name.trim(), lender: lender.trim(), outstanding: num(amount) });
+    onSave({ id: item?.id ?? crypto.randomUUID(), userId, name: name.trim(), lender: lender.trim(), outstanding: num(amount) });
   };
   return (
     <form

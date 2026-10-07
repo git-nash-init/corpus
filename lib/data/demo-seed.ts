@@ -1,4 +1,7 @@
 import type {
+  AppData,
+  ReviewItem,
+  ReviewNote,
   BalanceAsset,
   FixedAsset,
   Fund,
@@ -13,35 +16,7 @@ import type {
 import { addMonths, firstOfMonth } from "@/lib/engine/dates";
 import { STOCK_DIRECTORY } from "./stock-directory";
 
-export interface ReviewItem {
-  id: string;
-  action: string;
-  timeline: string;
-  focus: string;
-  done: boolean;
-}
-
-export interface ReviewNote {
-  id: string;
-  category: "Key wins" | "Improvements" | "Next actions";
-  text: string;
-}
-
-export interface AppData {
-  version: 1;
-  userId: string;
-  funds: Fund[];
-  fundTxns: FundTxn[];
-  stockTxns: StockTxn[];
-  quotes: StockQuote[];
-  fixedAssets: FixedAsset[];
-  balanceAssets: BalanceAsset[];
-  liabilities: Liability[];
-  goals: Goal[];
-  snapshots: Snapshot[];
-  reviewItems: ReviewItem[];
-  reviewNotes: ReviewNote[];
-}
+export type { AppData, ReviewItem, ReviewNote } from "./types";
 
 const USER = "demo-user";
 
@@ -189,13 +164,13 @@ export function buildDemoData(today: ISODate): AppData {
   }
 
   const reviewItems: ReviewItem[] = [
-    { id: "r1", action: "Verify mutual fund SIP debits", timeline: "1st to 5th", focus: "SIP completed", done: true },
-    { id: "r2", action: "Refresh stock prices and valuations", timeline: "10th to 15th", focus: "Investments updated", done: true },
-    { id: "r3", action: "Log EPF, PPF and NPS balances", timeline: "15th to 20th", focus: "Other assets in sync", done: false },
-    { id: "r4", action: "Review EMI and debt reduction", timeline: "20th to 25th", focus: "Debt reduced", done: false },
-    { id: "r5", action: "Pay credit card statement in full", timeline: "25th", focus: "Zero penalty", done: true },
-    { id: "r6", action: "Check progress on the 1 Crore goal", timeline: "28th", focus: "Goal progress checked", done: true },
-    { id: "r7", action: "Take the month-end wealth snapshot", timeline: "Last day", focus: "Snapshot logged", done: true },
+    { id: "r1", position: 1, action: "Verify mutual fund SIP debits", timeline: "1st to 5th", focus: "SIP completed", done: true },
+    { id: "r2", position: 2, action: "Refresh stock prices and valuations", timeline: "10th to 15th", focus: "Investments updated", done: true },
+    { id: "r3", position: 3, action: "Log EPF, PPF and NPS balances", timeline: "15th to 20th", focus: "Other assets in sync", done: false },
+    { id: "r4", position: 4, action: "Review EMI and debt reduction", timeline: "20th to 25th", focus: "Debt reduced", done: false },
+    { id: "r5", position: 5, action: "Pay credit card statement in full", timeline: "25th", focus: "Zero penalty", done: true },
+    { id: "r6", position: 6, action: "Check progress on the 1 Crore goal", timeline: "28th", focus: "Goal progress checked", done: true },
+    { id: "r7", position: 7, action: "Take the month-end wealth snapshot", timeline: "Last day", focus: "Snapshot logged", done: true },
   ];
 
   const reviewNotes: ReviewNote[] = [
@@ -207,6 +182,7 @@ export function buildDemoData(today: ISODate): AppData {
   return {
     version: 1,
     userId: USER,
+    documents: [],
     funds,
     fundTxns,
     stockTxns,

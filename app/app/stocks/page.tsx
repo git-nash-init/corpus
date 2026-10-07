@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AllocationBar } from "@/components/charts/AllocationBar";
 import { Badge, EmptyState, PageHeader, Section, Signed, Stat } from "@/components/app/kit";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +13,8 @@ import { STOCK_DIRECTORY } from "@/lib/data/stock-directory";
 import type { StockQuote } from "@/lib/data/types";
 import { useApp } from "@/lib/state/useApp";
 import { useStore } from "@/lib/state/store";
+import { searchStocks, stockQuotes, type StockHit } from "@/lib/market/api";
+import { PriceStatus } from "@/components/app/PriceStatus";
 
 const num = (s: string) => (s.trim() === "" ? NaN : Number(s));
 
@@ -42,7 +44,8 @@ export default function StocksPage() {
         subtitle="Average cost moves with every buy and sell, so selling part of a holding books a realised gain instead of distorting your cost."
         actions={
           <>
-            <Button onClick={() => setPricesOpen(true)}>Update prices</Button>
+            <PriceStatus />
+            <Button onClick={() => setPricesOpen(true)}>Edit prices</Button>
             <Button variant="primary" onClick={() => setTradeOpen(true)}>
               Record a trade
             </Button>
@@ -50,7 +53,7 @@ export default function StocksPage() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Invested" value={d.stockSum.invested} note={`${d.stockSum.holdings} companies held`} />
         <Stat label="Current value" value={d.stockSum.currentValue} note="Quantity x current price" delay={0.06} />
         <Stat
@@ -265,6 +268,7 @@ function TradeModal({
   onSave: (t: { ticker: string; date: string; type: "Buy" | "Sell"; quantity: number; price: number }, quote: StockQuote | null) => string | null;
 }) {
   const [ticker, setTicker] = useState("");
+  const [picked, setPicked] = useState<StockHit | null>(null);
   const [type, setType] = useState<"Buy" | "Sell">("Buy");
   const [date, setDate] = useState(today);
   const [qty, setQty] = useState("");
@@ -272,27 +276,72 @@ function TradeModal({
   const [cmp, setCmp] = useState("");
   const [err, setErr] = useState<Record<string, string>>({});
 
-  const symbol = ticker.trim().toUpperCase();
-  const entry = STOCK_DIRECTORY.find((e) => e.ticker === symbol);
-  const hasQuote = quotes.some((q) => q.ticker === symbol);
+  const symbol = (picked?.ticker ?? ticker).trim().toUpperCase();
+  const known = STOCK_DIRECTORY.find((e) => e.ticker === symbol);
+  const stored = quotes.find((q) => q.ticker === symbol);
+
+  // Debounced live search while the user types. Results remember the query they answer.
+  const [res, setRes] = useState<{ q: string; hits: StockHit[] } | null>(null);
+  const q = ticker.trim();
+  const activeSearch = !picked && q.length >= 1;
+  useEffect(() => {
+    if (!activeSearch) return;
+    const t = window.setTimeout(() => {
+      searchStocks(q)
+        .then((h) => setRes({ q, hits: h }))
+        .catch(() => setRes({ q, hits: [] }));
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [q, activeSearch]);
+  const searchDone = activeSearch && res?.q === q;
+  const searching = activeSearch && !searchDone;
+  const hits = searchDone ? res.hits : [];
+
+  // Live NSE price for the chosen symbol.
+  const [liveRes, setLiveRes] = useState<{ symbol: string; quote: { price: number; time: number } | null } | null>(null);
+  const liveKey = open && /^[A-Z0-9&-]{1,20}$/.test(symbol) && (picked || known || stored) ? symbol : null;
+  useEffect(() => {
+    if (!liveKey) return;
+    let alive = true;
+    stockQuotes([liveKey])
+      .then((m) => alive && setLiveRes({ symbol: liveKey, quote: m[liveKey] ? { price: m[liveKey].price, time: m[liveKey].time } : null }))
+      .catch(() => alive && setLiveRes({ symbol: liveKey, quote: null }));
+    return () => {
+      alive = false;
+    };
+  }, [liveKey]);
+  const liveAnswered = liveKey !== null && liveRes?.symbol === liveKey;
+  const live = liveAnswered ? liveRes.quote : null;
+  const liveState: "idle" | "loading" | "missing" = liveKey === null ? "idle" : !liveAnswered ? "loading" : liveRes.quote ? "idle" : "missing";
+
+  const needsManualCmp = !stored && !live;
 
   const submit = () => {
     const e: Record<string, string> = {};
-    if (!symbol) e.ticker = "Enter a ticker, for example HDFCBANK.";
-    else if (!entry && !hasQuote) e.ticker = "This ticker is not in the directory yet. Pick one from the list.";
+    if (!symbol) e.ticker = "Search for a company or enter a ticker, for example HDFCBANK.";
+    else if (!picked && !known && !stored) e.ticker = "Pick a company from the suggestions so we can find its price.";
     if (!date || date > today) e.date = "Choose a date that is not in the future.";
     if (!(num(qty) > 0) || !Number.isInteger(num(qty))) e.qty = "Enter a whole number of shares.";
-    if (!(num(price) > 0)) e.price = "Enter the price per share.";
-    if (!hasQuote && !(num(cmp) > 0)) e.cmp = "Enter today's price so the holding can be valued.";
+    const px = price.trim() !== "" ? num(price) : (live?.price ?? NaN);
+    if (!(px > 0)) e.price = "Enter the price per share.";
+    if (needsManualCmp && !(num(cmp) > 0)) e.cmp = "Live price is unavailable. Enter today's price so the holding can be valued.";
     setErr(e);
     if (Object.keys(e).length) return;
-    const quote: StockQuote | null = hasQuote || !entry ? null : { ticker: symbol, name: entry.name, sector: entry.sector, cmp: num(cmp) };
-    const problem = onSave({ ticker: symbol, date, type, quantity: num(qty), price: num(price) }, quote);
+    const quote: StockQuote | null = stored
+      ? null
+      : {
+          ticker: symbol,
+          name: picked?.name ?? known?.name ?? symbol,
+          sector: ((picked?.sector ?? known?.sector ?? "Other") as StockQuote["sector"]),
+          cmp: live?.price ?? num(cmp),
+        };
+    const problem = onSave({ ticker: symbol, date, type, quantity: num(qty), price: px }, quote);
     if (problem) {
       setErr({ qty: problem });
       return;
     }
     setTicker("");
+    setPicked(null);
     setQty("");
     setPrice("");
     setCmp("");
@@ -303,7 +352,7 @@ function TradeModal({
       open={open}
       onClose={onClose}
       title="Record a trade"
-      description="Sells are checked against what you hold on that date."
+      description="Search any NSE stock. Sells are checked against what you hold on that date."
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
@@ -323,23 +372,44 @@ function TradeModal({
           submit();
         }}
       >
-        <div className="field">
-          <label htmlFor="ticker">Ticker *</label>
-          <input id="ticker" className="input" list="tickers" value={ticker} onChange={(e) => setTicker(e.target.value)} aria-invalid={err.ticker ? true : undefined} autoComplete="off" placeholder="HDFCBANK" />
-          <datalist id="tickers">
-            {STOCK_DIRECTORY.map((e) => (
-              <option key={e.ticker} value={e.ticker}>
-                {e.name}
-              </option>
-            ))}
-          </datalist>
-          {err.ticker ? (
-            <p className="error" role="alert">
-              {err.ticker}
-            </p>
-          ) : entry ? (
-            <p className="hint">
-              {entry.name}, {entry.sector}
+        <div>
+          {picked ? (
+            <div className="rounded-[4px] border border-line p-4">
+              <p className="text-[16px]">
+                {picked.ticker} <span className="text-ink-2">{picked.name}</span>
+              </p>
+              <button
+                type="button"
+                className="mt-2 text-sm text-brass underline underline-offset-4"
+                onClick={() => {
+                  setPicked(null);
+                  setTicker("");
+                }}
+              >
+                Choose a different stock
+              </button>
+            </div>
+          ) : (
+            <>
+              <TextField label="Stock" required value={ticker} onChange={(e) => setTicker(e.target.value)} error={err.ticker} placeholder="HDFC Bank or HDFCBANK" autoComplete="off" />
+              {searching ? <p className="mt-2 text-sm text-ink-3">Searching...</p> : null}
+              {hits.length ? (
+                <ul className="mt-2 max-h-[220px] divide-y divide-[var(--line)] overflow-y-auto rounded-[4px] border border-line" aria-label="Matching stocks">
+                  {hits.map((h) => (
+                    <li key={h.ticker}>
+                      <button type="button" className="flex w-full items-baseline justify-between gap-3 px-4 py-3 text-left text-[15px] transition-colors duration-150 hover:bg-[var(--glass-fill-hover)]" onClick={() => setPicked(h)}>
+                        <span className="font-medium">{h.ticker}</span>
+                        <span className="truncate text-ink-2">{h.name}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          )}
+          {symbol && (picked || known || stored) ? (
+            <p className="mt-2 text-sm text-ink-2" role="status">
+              {liveState === "loading" ? "Fetching the live price..." : live ? `Live NSE price ${formatNumber(live.price, 2)}` : stored ? `Last saved price ${formatNumber(stored.cmp, 2)}` : "Live price unavailable right now."}
             </p>
           ) : null}
         </div>
@@ -352,10 +422,10 @@ function TradeModal({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <TextField label="Quantity" type="number" inputMode="numeric" value={qty} onChange={(e) => setQty(e.target.value)} error={err.qty} />
-          <TextField label="Price per share (Rs)" type="number" inputMode="decimal" step="0.05" value={price} onChange={(e) => setPrice(e.target.value)} error={err.price} />
+          <TextField label="Price per share (Rs)" type="number" inputMode="decimal" step="0.05" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={live ? String(live.price) : ""} error={err.price} hint={live && date === today ? "Empty uses the live price." : undefined} />
         </div>
-        {!hasQuote && symbol && entry ? (
-          <TextField label="Today's price (Rs)" type="number" inputMode="decimal" step="0.05" value={cmp} onChange={(e) => setCmp(e.target.value)} error={err.cmp} hint="Used to value this holding until live prices are connected." />
+        {needsManualCmp && symbol && (picked || known) && liveState !== "loading" ? (
+          <TextField label="Today's price (Rs)" type="number" inputMode="decimal" step="0.05" value={cmp} onChange={(e) => setCmp(e.target.value)} error={err.cmp} hint="Used to value this holding because a live price could not be fetched." />
         ) : null}
         <button type="submit" className="sr-only" tabIndex={-1}>
           Save trade
@@ -374,7 +444,7 @@ function PricesModal({ open, onClose, quotes, onSave }: { open: boolean; onClose
       onClose={onClose}
       variant="drawer"
       title="Update prices"
-      description="Live NSE prices arrive with the database connection. Until then, enter current prices by hand."
+      description="Live prices refresh automatically. Use this only to override a price by hand."
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>

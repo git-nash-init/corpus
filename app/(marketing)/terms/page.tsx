@@ -10,7 +10,7 @@ export default function TermsPage() {
       eyebrow="Legal"
       title="Terms of service"
       intro="These terms govern your use of Crorpus. They are written to be read, so please do."
-      updated="29 September 2026"
+      updated="7 October 2026"
     >
       <DocSection n="01" title="Accepting these terms">
         <p>By using the Crorpus website or app (the &ldquo;Service&rdquo;) you agree to these terms. If you do not agree, please do not use the Service.</p>
@@ -26,16 +26,15 @@ export default function TermsPage() {
         </p>
       </DocSection>
 
-      <DocSection n="03" title="The demo">
+      <DocSection n="03" title="Early access">
         <p>
-          The current version is a demonstration running on sample data stored in your browser. Features and figures may change, and data may be lost if you clear your browser or use Reset. Export a copy if you want to keep
-          it.
+          Crorpus is new and still evolving. Features and figures may change. Keep your original statements, and use the export in Settings to hold your own copy of your records.
         </p>
       </DocSection>
 
       <DocSection n="04" title="Accounts">
         <p>
-          When accounts are introduced, you are responsible for keeping your sign in details safe and for activity under your account. You must be at least 18 and provide accurate information.
+          You are responsible for keeping your sign in details safe and for activity under your account. You must be at least 18 and provide accurate information.
         </p>
       </DocSection>
 
@@ -48,7 +47,7 @@ export default function TermsPage() {
 
       <DocSection n="06" title="Accuracy of figures">
         <p>
-          Results depend on what you enter and on any prices or NAVs you supply or that we later source from third parties. Check important numbers against your statements. Prices may be delayed, incomplete or wrong, and we do
+          Results depend on what you enter and on prices and NAVs sourced from third parties, including AMFI data via mfapi.in and a public market data feed. Check important numbers against your statements. Prices may be delayed, incomplete or wrong, and we do
           not guarantee their accuracy.
         </p>
       </DocSection>

@@ -10,33 +10,33 @@ export default function PrivacyPage() {
       eyebrow="Legal"
       title="Privacy policy"
       intro="Crorpus keeps records of your investments and calculates figures from them. This page explains what data that involves, where it lives and what control you have."
-      updated="29 September 2026"
+      updated="7 October 2026"
     >
       <DocSection n="01" title="What this covers">
         <p>
-          This policy applies to the Crorpus website and app (the &ldquo;Service&rdquo;). It describes two stages: the demo available today, and the account based service that follows. We will update this page before
-          the second stage begins.
+          This policy applies to the Crorpus website and app (the &ldquo;Service&rdquo;). It explains what we collect when you create an account, why, and what control you have.
         </p>
       </DocSection>
 
-      <DocSection n="02" title="What we collect today">
+      <DocSection n="02" title="What we collect when you use the Service">
         <p>
-          <strong>Your portfolio entries.</strong> Funds, stocks, balances, loans, goals and notes you enter in the demo are stored only in your own browser using local storage. They are not sent to our servers.
+          <strong>Account details.</strong> Your email address, your name, your chosen avatar and, if you upload one, your profile photo.
         </p>
         <p>
-          <strong>Your theme choice.</strong> We remember light or dark mode in the same way.
+          <strong>Your records.</strong> Funds, transactions, stocks, balances, loans, goals and notes you enter, and files you upload to your document vault or import.
         </p>
-        <p>We do not run advertising trackers. We do not use the data you enter for any purpose other than showing it back to you.</p>
+        <p>
+          <strong>Preferences and diagnostics.</strong> Your theme choice, and basic technical logs such as errors and browser type so we can fix problems.
+        </p>
+        <p>We do not run advertising trackers. We do not use the data you enter for any purpose other than providing the Service to you.</p>
       </DocSection>
 
-      <DocSection n="03" title="What we will collect with accounts">
-        <ul>
-          <li>Your email address and, optionally, your name, to identify your account and sign you in.</li>
-          <li>The financial records you choose to enter, such as holdings, transactions, balances, goals and review notes.</li>
-          <li>Basic technical diagnostics, such as error reports and the browser type, so we can fix problems.</li>
-        </ul>
+      <DocSection n="03" title="What we do not collect">
         <p>
-          We will <strong>never</strong> ask for your net banking, broker or demat passwords, one time passwords, PAN or Aadhaar.
+          We <strong>never</strong> ask for your net banking, broker or demat passwords, one time passwords, PAN or Aadhaar. We do not connect to your bank or broker accounts.
+        </p>
+        <p>
+          To show live prices, the names of the funds and stocks you look up or hold are sent to public market data services. Your identity, balances and quantities are not.
         </p>
       </DocSection>
 
@@ -51,28 +51,28 @@ export default function PrivacyPage() {
 
       <DocSection n="05" title="Who else handles it">
         <p>
-          When accounts launch, we expect to use service providers to host the application and database, and to send email. They may process your data only to provide those services to us, under contract. We will list
-          them here. We may also disclose information where the law requires it.
+          We use Supabase to host the database, sign-in and file storage (servers in Mumbai, India) and Vercel to host the website. They process your data only to provide those services to us. Mutual fund NAVs come
+          from the public AMFI data via mfapi.in, and share prices from a public market data feed. We may also disclose information where the law requires it.
         </p>
       </DocSection>
 
       <DocSection n="06" title="How long we keep it">
         <p>
-          In the demo, data stays in your browser until you clear it or use Reset in Settings. With accounts, we will keep your records while your account is open and delete them within a reasonable period after you close it,
-          except where the law requires us to keep something longer.
+          We keep your records while your account is open. You can delete all your records and files at any time from Settings. If you ask us to close your account, we delete your data within a reasonable period, except where
+          the law requires us to keep something longer.
         </p>
       </DocSection>
 
       <DocSection n="07" title="Your choices and rights">
         <p>
-          You can export everything you have entered, correct it, or delete it at any time from Settings. As accounts arrive, you will also be able to request access to, correction of, or erasure of your personal data, and
-          to withdraw consent, in line with applicable Indian law, including the Digital Personal Data Protection Act, 2023. You can reach us at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          You can export everything you have entered, correct it, or delete it at any time from Settings. You can also ask us for access to, correction of, or erasure of your personal data, and withdraw consent, in line with
+          applicable Indian law, including the Digital Personal Data Protection Act, 2023. You can reach us at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </DocSection>
 
       <DocSection n="08" title="Security">
         <p>
-          We design for safe handling of financial records: encryption in transit, encryption at rest, and access rules that keep each account&rsquo;s data separate. No system is perfectly secure, and you should protect your
+          We protect financial records with encryption in transit and at rest, and database rules that keep each account&rsquo;s data separate. No system is perfectly secure, and you should protect your
           own device and sign in details. More detail is on the <a href="/security">security page</a>.
         </p>
       </DocSection>

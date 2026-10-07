@@ -9,6 +9,7 @@ import { todayISO } from "@/lib/engine/dates";
 export function useApp() {
   const status = useStore((s) => s.status);
   const data = useStore((s) => s.data);
+  const profile = useStore((s) => s.profile);
   const error = useStore((s) => s.error);
   const load = useStore((s) => s.load);
 
@@ -26,5 +27,5 @@ export function useApp() {
     }
   }, [data, today]);
 
-  return { status, data, d: result.d, today, error: error ?? result.failure };
+  return { status, data, profile, d: result.d, today, error: error ?? result.failure };
 }

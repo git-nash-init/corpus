@@ -202,6 +202,7 @@ h3,
 }
 
 .panel {
+  min-width: 0;
   background: var(--glass-fill);
   border: 1px solid var(--line);
   border-top-color: var(--glass-border);
@@ -444,6 +445,89 @@ select.input option {
 .marquee-rule {
   height: 1px;
   background: var(--line);
+}
+
+/* Phones: tables become stacked cards. StackTables.tsx copies each column header into data-label. */
+@media (max-width: 639px) {
+  .table-wrap {
+    overflow-x: visible;
+  }
+  .data-table.stack,
+  .data-table.stack tbody,
+  .data-table.stack tfoot,
+  .data-table.stack tr {
+    display: block;
+    width: 100%;
+  }
+  .data-table.stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .data-table.stack tr {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .data-table.stack td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 5px 0;
+    border: 0;
+    white-space: normal;
+    text-align: right;
+    font-size: 15px;
+  }
+  .data-table.stack td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .data-table.stack td:not([data-label])::before,
+  .data-table.stack td[data-wide]::before {
+    content: none;
+  }
+  .data-table.stack td:first-child {
+    font-size: 17px;
+    justify-content: flex-start;
+    text-align: left;
+    padding-bottom: 8px;
+  }
+  .data-table.stack td:first-child::before {
+    content: none;
+  }
+  .data-table.stack td[data-wide] {
+    justify-content: flex-start;
+    text-align: left;
+    font-weight: 600;
+  }
+  .data-table.stack td:empty {
+    display: none;
+  }
+  .data-table.stack tfoot tr {
+    border-top: 1px solid var(--line-strong);
+  }
+}
+
+@media (max-width: 639px) {
+  .input,
+  select.input {
+    font-size: 16px;
+    min-height: 48px;
+  }
+  .btn {
+    min-height: 48px;
+  }
+  .btn-sm {
+    min-height: 44px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
